@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client-js"
+  output = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file: dev.db"
+}
+
+model Project {
+  @@map("projects")
+  id        String    @id @default(cuid())
+  name      String
+  state     Json?
+  messages  Json?
+}
+
+model ProjectAsset {
+  @@map("project_assets")
+  id             String    @id @default(cuid())
+  projectId      String
+  state          Json?
+  type           String  // Video, Image, Sound
+  s3_key         String
+  description    String // Alt, or prompt used to generate
+}

@@ -1,0 +1,70 @@
+import { TextStyleAlign, TextDropShadow, FillInput, TextStyleFontStyle, TextStyleFontVariant, TextStyleFontWeight, StrokeInput, TextStyleTextBaseline, TextStyleWhiteSpace } from "pixi.js";
+
+type TextStyleConfig = {
+    /**
+     * Alignment for multiline text, does not affect single line text
+     * @type {'left'|'center'|'right'|'justify'}
+     */
+    align?: TextStyleAlign;
+    /** Indicates if lines can be wrapped within words, it needs `wordWrap` to be set to `true` */
+    breakWords?: boolean;
+    /** Set a drop shadow for the text */
+    dropShadow?: boolean | Partial<TextDropShadow>;
+    /**
+     * A canvas fillstyle that will be used on the text e.g., 'red', '#00FF00'.
+     * Can be an array to create a gradient, e.g., `['#000000','#FFFFFF']`
+     * {@link https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/fillStyle|MDN}
+     * @type {string|string[]|number|number[]|CanvasGradient|CanvasPattern}
+     */
+    fill?: FillInput;
+    /** The font family, can be a single font name, or a list of names where the first is the preferred font. */
+    fontFamily?: string;
+    /** The font size (as a number it converts to px, but as a string, equivalents are '26px','20pt','160%' or '1.6em') */
+    fontSize?: number | string;
+    /**
+     * The font style.
+     * @type {'normal'|'italic'|'oblique'}
+     */
+    fontStyle?: TextStyleFontStyle;
+    /**
+     * The font variant.
+     * @type {'normal'|'small-caps'}
+     */
+    fontVariant?: TextStyleFontVariant;
+    /**
+     * The font weight.
+     * @type {'normal'|'bold'|'bolder'|'lighter'|'100'|'200'|'300'|'400'|'500'|'600'|'700'|'800'|'900'}
+     */
+    fontWeight?: TextStyleFontWeight;
+    /** The height of the line, a number that represents the vertical space that a letter uses. */
+    leading?: number;
+    /** The amount of spacing between letters, default is 0 */
+    letterSpacing?: number;
+    /** The line height, a number that represents the vertical space that a letter uses */
+    lineHeight?: number;
+    /**
+     * Occasionally some fonts are cropped. Adding some padding will prevent this from
+     * happening by adding padding to all sides of the text.
+     */
+    padding?: number;
+    /** A canvas fillstyle that will be used on the text stroke, e.g., 'blue', '#FCFF00' */
+    stroke?: StrokeInput;
+    /**
+     * The baseline of the text that is rendered.
+     * @type {'alphabetic'|'top'|'hanging'|'middle'|'ideographic'|'bottom'}
+     */
+    textBaseline?: TextStyleTextBaseline;
+    trim?: boolean;
+    /**
+     * Determines whether newlines & spaces are collapsed or preserved "normal"
+     * (collapse, collapse), "pre" (preserve, preserve) | "pre-line" (preserve,
+     * collapse). It needs wordWrap to be set to true.
+     * @type {'normal'|'pre'|'pre-line'}
+     */
+    whiteSpace?: TextStyleWhiteSpace;
+    /** Indicates if word wrap should be used */
+    wordWrap?: boolean;
+    /** The width at which text will wrap, it needs wordWrap to be set to true */
+    wordWrapWidth?: number;
+}
+export type { TextStyleConfig }
