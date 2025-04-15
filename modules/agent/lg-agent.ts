@@ -37,7 +37,6 @@ const VideoGenerationSchema = z.object({
   image_url: z.string().url().describe("URL of the image to use to create the video"),
   prompt: z.string().describe("Detailed description of the video to generate"),
   duration: z.number().min(1).max(10).optional().describe("Duration of the video in seconds max 10"),
-  style: z.enum(["realistic", "animated", "cinematic", "documentary"]).optional().describe("Style of the video"),
 });
 
 const SoundEffectToolSchema = z.object({
@@ -116,7 +115,7 @@ export class MediaGenerationWorkflowLG {
   constructor(projectId: string, fal_key: string, anthropic_key: string) {
     this.projectId = projectId;
     this.llm = new ChatAnthropic({
-      model: "claude-3-5-sonnet-20240620",
+      model: "claude-3-5-sonnet-20241022",
       apiKey: anthropic_key,
       temperature: 0, // Does high temperature makes it better prompter ?
     });
@@ -177,11 +176,12 @@ export class MediaGenerationWorkflowLG {
       
       // Apply the patch
       const patchedState = applyPatch(currentState, operations).newDocument;
-
+      console.log({patchedState})
       const updated = await prisma.project.update({
         where: { id: this.projectId },
         data: { state: patchedState }
       });
+      console.log({w: JSON.stringify(updated.state)})
       // Update ids
       if (updated.state) {
         const withIds = (updated.state as {items: Array<Item>}).items.map((item) => {
@@ -240,8 +240,7 @@ export class MediaGenerationWorkflowLG {
       const videoParams = {
         image_url: params.image_url,
         prompt: params.prompt,
-        duration: Math.max(params.duration || 5).toString(),
-        style: params.style || "cinematic",
+        duration: Math.max(params.duration ?? 5, 5).toString(),
       };
       console.log({videoParams});
 
@@ -455,11 +454,10 @@ export class MediaGenerationWorkflowLG {
           // System message for the ReAct agent
           const systemMessage = `
 You are an AI assistant that helps manage media in a creative project.
-You are the best art and movie directors combined into one. You SHOULD generate the most detailed prompts to tools and prefer realistic unless user stated other style.
 You are a react agent (ReAct agent) that uses tools to generate media. Current iteration is {{iterations}}.
 The project uses timeline state to render it on 1024x576 canvas with timeline on UI.
 The total canvas timeline lenght should be 7 seconds unless it is stated othervise.
-You DO NOT MISS any details when providing prompt to tools.
+You are Leigh Powis. The best ad director. Also you are the BEST media prompt engineer. You do not miss any details.
 Below is typing of the canvas timeline state
 {
    items: [
@@ -499,8 +497,8 @@ Here is the history of previous iterations and their results:
 
 IMPORTANT: You must use the provided tools to generate media. DO NOT create fake URLs or placeholders.
 Each tool will return real media URLs that you can use in subsequent steps.
-You can also use the patch_state tool to update the canvas timeline state. But don't overuse it.
-But make sure to use it when needed especially last iteration.
+You can also use the patch_state tool to update the canvas timeline state.
+But make sure to use it when needed. ALWAYS MAKE SURE TO USE IT ON LAST ITERATION TO UPDATE STATE AND PLAN ACCORDINGLY.
 
 The aim is populating the canvas timeline at the end. Make sure to use patch_state tool action to apply changes.
 Try as much as hard to create consistent characters and environment.
@@ -510,26 +508,16 @@ Try as much as hard to create consistent characters and environment.
 1. generate_image
 Description: Generates an image based on a text prompt
 Parameters:
-- prompt (required): Detailed description of the image to generate.
+- prompt (required): Detailed description of the image to generate
 - style (optional): One of ["photorealistic", "cartoon", "artistic", "minimalist"]
 - image_size (optional): One of ["square_hd", "square", "portrait_4_3", "portrait_16_9", "landscape_4_3", "landscape_16_9"]
 Example: {"prompt": "Extreme close-up of a single tiger eye, direct frontal view. Detailed iris and pupil. Sharp focus on eye texture and color. Natural lighting to capture authentic eye shine and depth. The word "EXAMPLE" is painted over it in big, white brush strokes with visible texture.", "style": "photorealistic", "image_size": "landscape_16_9"}
 
-2. generate_video
-Description: Generates a video based on an image and text prompt, cannot generate audio
-Parameters:
-- image_url (required): URL of the image to use as base for the video
-- prompt (required): Detailed description of the video to generate
-- duration (optional): Duration in seconds (1-10)
-- style (optional): One of ["realistic", "animated", "cinematic", "documentary"]
-Example: {"image_url": "https://example.com/image.jpg", "prompt": "Camera slowly panning across mountain vista", "duration": 5, "style": "cinematic"}
-
 3. generate_text_to_speech
 Description: Converts text to speech. Use for text to speech audio generation. Can only be used for single speaker also.
-The finetune-prod models: for the primary model, your text prompt is formatted as {name}: I went to the .... The options for name in order of conversational realism (subjective benchmarks) are "tara", "leah", "jess", "leo", "dan", "mia", "zac", "zoe". Our python package does this formatting for you, and the notebook also prepends the appropriate string. You can additionally add the following emotive tags: <laugh>, <chuckle>, <sigh>, <cough>, <sniffle>, <groan>, <yawn>, <gasp>.
 Parameters:
-- text (required): Text to be converted to speech
-Example: {"text": "Man, the way social media has, um, <gasp> completely changed how we interact is just wild, right? Like, we're all connected 24/7 but somehow people feel more alone than ever. And don't even get me started on how it's messing with kids' self-esteem and mental health and whatnot."}
+- text (required): Text to be converted to speech.
+Example: {"text": "I just found a hidden treasure in the backyard! <gasp> Check it out!"}
 
 4. generate_music
 Description: Generates music from prompt. Use for music, sound etc. generation.
@@ -550,7 +538,7 @@ Parameters:
 - prompt (required): The changes required for the image
 - input_image_url (required): The url of the image that needs changing.
 
-7. start-end-to-video
+7. start_end_to_video
 Description: Vidu Start-End to Video generates smooth transition videos between specified start and end images.
 Parameters:
 - prompt (required): Prompt for the transition
@@ -588,7 +576,7 @@ Example:
 ALWAYS AND ALWAYS USE CORRECT JSON FORMAT. OTHERWISE IT WILL FAIL. MAKE SURE TO HAVE DOUBLE QUOTES FOR ALL KEYS AND VALUES.
 For each step:
 1. Analyze current canvas timeline state
-2. Think about what needs to be done to produce best output
+2. Think about what needs to be done
 3. Choose a tool to use
 4. Provide the necessary parameters
 5. Decide on the next step
@@ -634,12 +622,15 @@ When you've completed the task:
 Thought: I've completed all necessary actions.
 Final Answer: <summary of what you've done>
 """"
+
+NEVER INCLUDE Final Answer with Action and Action Input.
+
 you don't need to complete all iterations. If the job is done, provide Final Answer.
 you MUST include as much detail as possibe when prompting.
 You MUST use "patch_state" tool before the last iteration or when you want to stop. It would be better to use multiple operations in single tool call.
 NEVER include multiple Thought: in response. There can only be one Though, Answer, Action, Action Input in response.
         `;
-        const maxIterations = 10;
+        const maxIterations = 12;
         let iterations = 0;
 
         const getSysMessage = async () => {
@@ -922,21 +913,17 @@ NEVER include multiple Thought: in response. There can only be one Though, Answe
                         observation = `Output of edit image: ${editImageResult.url}`;
                         break;
                     
-                    case "start-end-to-video":
+                    case "start_end_to_video":
                         safeEnqueue(encoder.encodeChunk({ 
                             type: 'text-delta', 
-                            text_delta: `Start to end video with prompt: "${parsedActionInput.prompt ? 
-                            (parsedActionInput.prompt.length > 50 ? 
-                                parsedActionInput.prompt.substring(0, 50) + '...' : 
-                                parsedActionInput.prompt) : 
-                            'No prompt provided'}"\n` 
+                            text_delta: `Start to end video with prompt: "${parsedActionInput.prompt}"\n` 
                         }));
                         
-                        const startToEndVideoToolCallId = `start-end-to-video_call_${iterations}`;
+                        const startToEndVideoToolCallId = `start_end_to_video_call_${iterations}`;
                         safeEnqueue(encoder.encodeChunk({ 
                             type: 'tool-call-begin',
                             tool_call_id: startToEndVideoToolCallId,
-                            tool_name: 'start-end-to-video'
+                            tool_name: 'start_end_to_video'
                         }));
                         
                         const startToEndVideoResult = await self.startEndToVideo(parsedActionInput);
@@ -956,11 +943,7 @@ NEVER include multiple Thought: in response. There can only be one Though, Answe
                     case "reference-to-video":
                         safeEnqueue(encoder.encodeChunk({ 
                             type: 'text-delta', 
-                            text_delta: `Reference to video with prompt: "${parsedActionInput.prompt ? 
-                            (parsedActionInput.prompt.length > 50 ? 
-                                parsedActionInput.prompt.substring(0, 50) + '...' : 
-                                parsedActionInput.prompt) : 
-                            'No prompt provided'}"\n` 
+                            text_delta: `Reference to video with prompt: "${parsedActionInput.prompt}"\n` 
                         }));
                         
                         const referenceToVideoToolCallId = `reference-to-video_call_${iterations}`;
@@ -1076,86 +1059,56 @@ NEVER include multiple Thought: in response. There can only be one Though, Answe
 }
 
 function extractToolUse(responseText: string): [thought: string | null, action: string | null, actionInput: string | null] {
-  // Find the first occurrence of "Action:" to determine where to split the response
-  // Log response text to file with timestamp
-  const actionIndex = responseText.indexOf("Action:");
-  if (actionIndex === -1) {
-    // If there's no "Action:", this might be a final answer
-    if (responseText.includes("Final Answer:") || responseText.includes("I've completed all necessary actions")) {
-      const finalThoughtMatch = responseText.match(/Thought:\s*(.*?)(?=\s*Final Answer:|$)/s);
-      return [finalThoughtMatch ? finalThoughtMatch[1].trim() : "Completing task", null, null];
-    }
-    
-    console.error("Could not find Action: in response:", responseText.substring(0, 100) + "...");
-    return ["Error parsing response", null, null];
+  // Log response for debugging
+  // writeFileSync(`extract_input_${Date.now()}.txt`, responseText);
+
+  let thought: string | null = null;
+  let action: string | null = null;
+  let actionInput: string | null = null;
+
+  // Extract Thought (allow multiline)
+  const thoughtMatch = responseText.match(/^Thought:\s*([\s\S]*?)(?=\nAction:|\nFinal Answer:|$)/);
+  thought = thoughtMatch ? thoughtMatch[1].trim() : null;
+
+  // Check for Final Answer first
+  if (responseText.includes("Final Answer:")) {
+      return [thought, null, null]; // No action/input if it's a final answer
   }
-  
-  // Extract the first thought section up to the first "Action:"
-  const thoughtPart = responseText.substring(0, actionIndex);
-  const thoughtMatch = thoughtPart.match(/Thought:\s*(.*)/s);
-  
-  if (!thoughtMatch) {
-    console.error("Could not extract thought from:", thoughtPart);
-    return ["Error parsing thought", null, null];
+
+  // Extract Action
+  const actionMatch = responseText.match(/\nAction:\s*([\w-]+)/); // Allow hyphens
+  action = actionMatch ? actionMatch[1].trim() : null;
+
+  // Extract Action Input (find the JSON block)
+  const actionInputMatch = responseText.match(/\nAction Input:\s*(\{[\s\S]*\})/);
+   if (actionInputMatch && actionInputMatch[1]) {
+      actionInput = actionInputMatch[1].trim();
+      // Basic validation: Check if it starts with { and ends with }
+      if (!actionInput.startsWith('{') || !actionInput.endsWith('}')) {
+          console.warn("Extracted Action Input doesn't seem like a valid JSON object:", actionInput);
+          // Optionally try to recover or return null
+          actionInput = null; // Or attempt recovery
+      }
   }
-  
-  const thought = thoughtMatch[1].trim();
-  
-  // Extract the action name
-  const actionMatch = responseText.substring(actionIndex).match(/Action:\s*([\w_]+)/);
-  if (!actionMatch) {
-    console.error("Could not extract action name from:", responseText.substring(actionIndex, actionIndex + 100));
-    return [thought, null, null];
+
+
+  if (!thought && !action && !responseText.includes("Final Answer:")) {
+      console.warn("Could not extract Thought or Action from response:", responseText.substring(0, 200));
+      // Return thought as error if nothing else found
+      return ["Error: Could not parse response structure.", null, null];
   }
-  
-  const action = actionMatch[1].trim();
-  
-  // Find the Action Input section
-  const actionInputIndex = responseText.indexOf("Action Input:", actionIndex);
-  if (actionInputIndex === -1) {
-    console.error("Could not find Action Input: after Action:", responseText.substring(actionIndex, actionIndex + 100));
-    return [thought, action, "{}"];
+   if (action && !actionInput) {
+      console.warn(`Action '${action}' found, but Action Input JSON is missing or invalid.`);
+      // Decide: return null for input, or try a default? Returning null is safer.
+       return [thought, action, null]; // Return action but null input
   }
-  
-  // Find the next "Thought:" after the Action Input (if any)
-  const nextThoughtIndex = responseText.indexOf("Thought:", actionInputIndex);
-  
-  // Extract everything between "Action Input:" and the next "Thought:" (or end of string)
-  const actionInputSection = nextThoughtIndex !== -1 
-    ? responseText.substring(actionInputIndex, nextThoughtIndex)
-    : responseText.substring(actionInputIndex);
-  
-  // Find the JSON object in the Action Input section
-  const jsonStartIndex = actionInputSection.indexOf("{");
-  if (jsonStartIndex === -1) {
-    console.error("Could not find JSON start in Action Input section:", actionInputSection);
-    return [thought, action, "{}"];
-  }
-  
-  // Extract the JSON object
-  let braceCount = 1;
-  let jsonEndIndex = jsonStartIndex + 1;
-  
-  while (braceCount > 0 && jsonEndIndex < actionInputSection.length) {
-    const char = actionInputSection[jsonEndIndex];
-    if (char === "{") braceCount++;
-    if (char === "}") braceCount--;
-    jsonEndIndex++;
-  }
-  
-  if (braceCount !== 0) {
-    console.error("Unbalanced braces in JSON:", actionInputSection.substring(jsonStartIndex));
-    return [thought, action, "{}"];
-  }
-  
-  const actionInput = actionInputSection.substring(jsonStartIndex, jsonEndIndex);
-  
+
+
   return [thought, action, actionInput];
 }
 
 function actionInputParser(jsonStr: string): any {
   try {
-    // First attempt to parse as valid JSON
     return JSON.parse(jsonStr);
   } catch (e) {
     console.error("Initial JSON parse error:", e, "Input was:", jsonStr);
@@ -1168,21 +1121,8 @@ function actionInputParser(jsonStr: string): any {
       
       return JSON.parse(processedString);
     } catch (e2) {
-      console.error("Failed to parse after basic fixes:", e2);
-      
-      // If it's a patch operation, try to extract the operations array
-      if (jsonStr.includes('"operations"') && jsonStr.includes('"op"') && jsonStr.includes('"path"')) {
-        try {
-          // Create a minimal valid operations object
-          return {
-            operations: []
-          };
-        } catch (e3) {
-          console.error("Failed to create minimal operations object:", e3);
-        }
-      }
-      
-      return {};
+      // Don't return empty operations - throw error to force model to fix format
+      throw new Error("Invalid JSON format for action input");
     }
   }
 }

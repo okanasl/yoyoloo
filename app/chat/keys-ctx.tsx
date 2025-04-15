@@ -40,7 +40,7 @@ const CredentialsProvider = ({
           setAnthropicKey(data.anthropic_key);
           setFalKey(data.fal_key);
         }} />
-        <span className="text-sm italic">API will not stored anywhere.</span>
+        <span className="text-sm italic">API keys will not be stored.</span>
         </DialogContent>
       </Dialog>}
       {!showDialog && <>{children}</>}

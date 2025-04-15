@@ -93,24 +93,24 @@ const ThreadWelcomeSuggestions: FC = () => {
     <div className="mt-3 flex w-full items-stretch justify-center gap-4">
       <ThreadPrimitive.Suggestion
         className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3 transition-colors ease-in"
-        prompt="Create 8 second, create a touristic ad for London."
+        prompt="Create 8 second, touristic ad for North Korea."
         method="replace"
         type="button"
         autoSend
       >
         <span className="line-clamp-2 text-ellipsis text-sm font-semibold">
-          Create a touristic ad for London.
+          Create touristic ad for North Korea
         </span>
       </ThreadPrimitive.Suggestion>
       <ThreadPrimitive.Suggestion
         type="button"
         className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3 transition-colors ease-in"
-        prompt="Create 8 second, futuristic/realistic AI advertisement for Vercel."
+        prompt="Create 8 second viral advertisement for NextJS."
         method="replace"
         autoSend
       >
         <span className="line-clamp-2 text-ellipsis text-sm font-semibold">
-        Create futuristic AI advertisement for Vercel.
+        Create viral advertisement for NextJS.
         </span>
       </ThreadPrimitive.Suggestion>
     </div>

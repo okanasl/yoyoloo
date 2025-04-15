@@ -38,3 +38,4 @@ next-env.d.ts
 /prisma/dev*
 
 /app/generated/prisma
+.vercel
