@@ -1,6 +1,0 @@
-Thought: Now that I have all the necessary media elements, I need to create an impactful sound effect and background music to enhance the advertisement, and then arrange everything in the timeline properly.
-
-Action: generate_sound_effect
-Action Input: {
-    "text": "A powerful, modern tech whoosh with digital glitch elements and a deep impact, perfect for high-tech logo reveal"
-}

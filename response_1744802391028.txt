@@ -1,8 +1,0 @@
-Thought: Now that we have all our media elements, I need to create a final video that shows the product tagline and call to action. This will complete our NextJS advertisement sequence.
-
-Action: generate_image
-Action Input: {
-    "prompt": "A sleek, modern text overlay design with the words 'Build Fast. Ship Faster.' in a clean, futuristic sans-serif font. White text with subtle blue glow against a transparent background. Professional and minimalist design.",
-    "style": "minimalist",
-    "image_size": "landscape_16_9"
-}
