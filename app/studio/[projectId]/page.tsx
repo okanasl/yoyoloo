@@ -54,7 +54,7 @@ function StudioPageImpl() {
       director.loadManager.removeEventListener('loadingStarted', handleLoadingStart);
       director.loadManager.removeEventListener('allAssetsLoaded', handleAssetsLoaded);
     };
-  }, [director]); // Dependency only on director
+  }, [director]);
 
   console.log({assetsLoaded})
 

@@ -838,7 +838,7 @@ export const CanvasTimeline: React.FC<CanvasTimelineProps> = ({
             </div>
         </div>
 
-        <Button disabled={isMuxing} size="sm" variant="ghost" onClick={handleDownload} className='gap-1'>
+        <Button disabled={isMuxing} size="sm" variant="secondary" onClick={handleDownload} className='gap-1'>
           {!isMuxing && <><Download className='size-4'/> Download</>}
           {isMuxing && <><AnimatedClapperboard className='size-4'/> Rendering</>}
         </Button>

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Assistant } from "@/app/assistant";
+import { Assistant } from "@/components/assistant";
 
 
 function SidePanel() {

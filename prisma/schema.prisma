@@ -4,14 +4,16 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file: dev.db"
+  provider  = "postgres"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Project {
   @@map("projects")
   id        String    @id @default(cuid())
   name      String
+  userId    String
   state     Json?
   messages  Json?
 }
@@ -20,6 +22,7 @@ model ProjectAsset {
   @@map("project_assets")
   id             String    @id @default(cuid())
   projectId      String
+  userId         String
   state          Json?
   type           String  // Video, Image, Sound
   s3_key         String

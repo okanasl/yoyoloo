@@ -2,10 +2,11 @@
 
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { useProjects } from '@/modules/projects/ctx/projects-ctx';
 import { Button } from './button';
 import { generateProjectName } from '@/modules/projects/utils';
+import { createClient } from '@/utils/supabase/client';
 
 interface AnimatedButtonProps {
   children: React.ReactNode;
@@ -19,20 +20,29 @@ const AnimatedButton: React.FC<AnimatedButtonProps> = ({
   delay = 0
 }) => {
   const [isHovering, setIsHovering] = useState(false);
+  const supabase = createClient();
 
   const router = useRouter();
 
   const {createProject} = useProjects();
 
   const onClickLaunch = () => {
-    createProject({
-        name: generateProjectName(),
-        state: {
-            items: []
-        },
-        messages: [],
-    }).then((resp) => {
-        router.push(`/studio/${resp.id}`)
+    supabase.auth.getSession().then((sess) => {
+      console.log({sess})
+      if (!sess.data.session) {
+        router.push(`/auth/login`)
+        return;
+      }
+      createProject({
+          name: generateProjectName(),
+          userId: sess.data?.session?.user.id as string,
+          state: {
+              items: []
+          },
+          messages: [],
+      }).then((resp) => {
+          router.push(`/studio/${resp.id}`)
+      })
     })
   }
 

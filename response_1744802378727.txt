@@ -1,0 +1,7 @@
+Thought: Now that I have all the necessary media elements, I need to create a background music track that will tie everything together and create the right mood for our NextJS advertisement.
+
+Action: generate_music
+Action Input: {
+    "prompt": "Modern, energetic tech soundtrack with a mix of electronic elements and ambient synths. Progressive build-up with clean, digital sounds. Professional and innovative feel, suitable for a tech product advertisement. Key: C Major, Tempo: 128 BPM.",
+    "duration": 10
+}

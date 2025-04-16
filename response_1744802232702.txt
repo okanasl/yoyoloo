@@ -1,0 +1,8 @@
+Thought: Now I need to create a sleek NextJS logo reveal animation to follow our tech environment sequence. This will help brand recognition and complete our advertisement narrative.
+
+Action: generate_image
+Action Input: {
+    "prompt": "A modern, minimalist NextJS logo in white against a transparent background. The logo should be clean, sharp, and professional with subtle depth and dimension. High contrast and crisp edges.",
+    "style": "minimalist",
+    "image_size": "landscape_16_9"
+}

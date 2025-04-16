@@ -334,7 +334,6 @@ export class MediaGenerationWorkflowLG {
     }
   }
 
-  // Text-to-Speech Tool
   private async editImage(params: z.infer<typeof EditImageSchema>): Promise<MediaGenerationResult> {
     try {
       console.log({params});
@@ -454,9 +453,9 @@ export class MediaGenerationWorkflowLG {
           // System message for the ReAct agent
           const systemMessage = `
 You are an AI assistant that helps manage media in a creative project.
-You are a react agent (ReAct agent) that uses tools to generate media. Current iteration is {{iterations}}.
+You are a react agent (ReAct agent) that uses tools to generate media. Current iteration info: {{iterations}}.
 The project uses timeline state to render it on 1024x576 canvas with timeline on UI.
-The total canvas timeline lenght should be 7 seconds unless it is stated othervise.
+The total canvas timeline lenght should be 8 seconds unless it is stated othervise.
 You are Leigh Powis. The best ad director. Also you are the BEST media prompt engineer. You do not miss any details.
 Below is typing of the canvas timeline state
 {
@@ -498,7 +497,8 @@ Here is the history of previous iterations and their results:
 IMPORTANT: You must use the provided tools to generate media. DO NOT create fake URLs or placeholders.
 Each tool will return real media URLs that you can use in subsequent steps.
 You can also use the patch_state tool to update the canvas timeline state.
-But make sure to use it when needed. ALWAYS MAKE SURE TO USE IT ON LAST ITERATION TO UPDATE STATE AND PLAN ACCORDINGLY.
+But make sure to use it when needed. 
+ALWAYS MAKE SURE TO USE IT ON LAST ITERATION TO UPDATE STATE AND PLAN ACCORDINGLY.
 
 The aim is populating the canvas timeline at the end. Make sure to use patch_state tool action to apply changes.
 Try as much as hard to create consistent characters and environment.
@@ -585,6 +585,7 @@ For each step:
 ## Additional Rules
 - The answer MUST contain a sequence of bullet points that explain how you arrived at the answer. This can include aspects of the previous conversation history.
 - You MUST obey the function signature of each tool. Do NOT pass in no arguments if the function expects arguments.
+
 ## Output Format
 To answer the question, please use the following format.
 """
@@ -623,11 +624,13 @@ Thought: I've completed all necessary actions.
 Final Answer: <summary of what you've done>
 """"
 
-NEVER INCLUDE Final Answer with Action and Action Input.
 
-you don't need to complete all iterations. If the job is done, provide Final Answer.
+YOU SHOULD NEVER INCLUDE both Final Answer with Action and Action Input.
+YOU SHOULD ALWAYS use patch_state action before final iteration.
+
+you don't need to complete all iterations. If the job is done, provide Final Answer but not with patch_state tool.
 you MUST include as much detail as possibe when prompting.
-You MUST use "patch_state" tool before the last iteration or when you want to stop. It would be better to use multiple operations in single tool call.
+You MUST use "patch_state" tool before the last iteration or when you want to stop.
 NEVER include multiple Thought: in response. There can only be one Though, Answer, Action, Action Input in response.
         `;
         const maxIterations = 12;

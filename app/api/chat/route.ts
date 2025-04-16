@@ -1,4 +1,7 @@
+import { prisma } from '@/lib/prisma';
 import { MediaGenerationWorkflowLG } from '@/modules/agent/lg-agent';
+import { createClient } from '@/utils/supabase/server';
+import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -10,6 +13,28 @@ export async function POST(request: NextRequest) {
         headers: { 'Content-Type': 'application/json' }
       });
     }
+    const cook = cookies();
+    const supabase = createClient(cook);
+    const { data } = await supabase.auth.getSession()
+    
+    if (!data.session?.user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const project = await prisma.project.findFirst({
+      where: { id: projectId, userId: data.session.user.id }
+    });
+    
+    if (!project) {
+      return new Response(JSON.stringify({ error: 'Forbidden' }), { 
+        status: 403,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
     const workflow = new MediaGenerationWorkflowLG(projectId, falKey, anthropicKey)
     const multiMediaStream = await workflow.stream(messages);
 
