@@ -105,12 +105,12 @@ const ThreadWelcomeSuggestions: FC = () => {
       <ThreadPrimitive.Suggestion
         type="button"
         className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3 transition-colors ease-in"
-        prompt="Create 8 second viral advertisement for NextJS. Narrator should start speaking at 4 second saying 'Check our website vercel.com' "
+        prompt="Create 8 second advertisement for NextJS with 2 scenes with nice music. The NextJS logo should display at the end."
         method="replace"
         autoSend
       >
         <span className="line-clamp-2 text-ellipsis text-sm font-semibold">
-          Viral Ad for NextJS.
+          Create NextJS advertisement.
         </span>
       </ThreadPrimitive.Suggestion>
     </div>

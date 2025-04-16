@@ -63,6 +63,7 @@ const StartEndToVideoSchema = z.object({
 });
 
 const ReferenceToVideoSchema = z.object({
+  template: z.string(),
   prompt: z.string().describe("Prompt to run"),
   reference_image_urls: z.array(z.string()).describe('Reference image URLS'),
 });
@@ -538,7 +539,7 @@ Parameters:
 - input_image_url (required): The url of the image that needs changing.
 
 7. start_end_to_video
-Description: Vidu Start-End to Video generates smooth transition videos between specified start and end images.
+Description: Vidu Start-End to Video generates 4 seconds smooth transition videos between specified start and end images.
 Parameters:
 - prompt (required): Prompt for the transition
 - start_image_url (required): Start image url
@@ -550,9 +551,10 @@ Example:
     end_image_url: "https://fal.ai/vidu/2-carbody.png"
 }
 
-8. reference-to-video
-Description: Creates videos by using a reference images and combining them with a prompt.
+8. reference_to_video
+Description: Creates 4 seconds videos by using a reference images and combining them with a prompt.
 Parameters:
+- template (required): AI video template to use. Possible enum values: dreamy_wedding, romantic_lift, sweet_proposal, couple_arrival, cupid_arrow, pet_lovers, lunar_newyear, hug, kiss, dynasty_dress, wish_sender, love_pose, hair_swap, youth_rewind, morphlab, live_photo, emotionlab, live_memory, interaction, christmas
 - prompt (required): Prompt for the transition
 - reference_image_urls (required): Reference images to be used in the video.
 Example:
@@ -586,16 +588,15 @@ For each step:
 - You MUST obey the function signature of each tool. Do NOT pass in no arguments if the function expects arguments.
 
 ## Output Format
-To answer the question, please use the following format.
+To accomplish the task, please use the following format.
 """
 Thought: I need to use a tool to help me.
-Action: tool name (one of generate_image, generate_video, generate_text_to_speech) if using a tool.
+Action: tool name (one of generate_image, generate_video, generate_text_to_speech, generate_music, generate_sound_effect, edit_image, reference_to_video, patch_state) if using a tool.
 Action Input: the input to the tool, in a JSON format representing the kwargs (e.g. {"prompt": "hello world", "style": "photorealistic"})
 """
 
 Please ALWAYS start with a Thought. And never include multiple Thoughts at once.
 On your first Thought, create a plan for the next iterations.
-
 Please use a valid JSON format for the Action Input with double quotes for both keys and values.
 
 If this format is used, the user will respond in the following format:
@@ -605,7 +606,7 @@ Observation: tool response
 """"
 
 You should keep repeating the above format until you have enough information
-to answer the question without using any more tools. At that point, you MUST respond
+to accomplish the task without using any more tools. At that point, you MUST respond
 in the one of the following two formats:
 
 """"
@@ -614,23 +615,29 @@ Answer: [your answer here]
 """"
 
 """"
-Thought: I cannot answer the question with the provided tools.
+Thought: I cannot accomplish the task with the provided tools.
 Answer: Sorry, I cannot answer your query.
 """"
+
 When you've completed the task:
 """"
 Thought: I've completed all necessary actions.
 Final Answer: <summary of what you've done>
 """"
 
+It is **CRITICAL** to follow this Output format strictly. Exactly one \`Thought:\` per response turn.
 
-YOU SHOULD NEVER INCLUDE both Final Answer with Action and Action Input.
-YOU SHOULD ALWAYS use patch_state action before final iteration.
+## Additional Rules
+- Make sure to generate video for the whole timeline. Avoid displaying images instead of video.
+- When generating video, use the images you generated and not external links.
+- DO NOT values provided in examples to use tools.
+- The answer MUST contain a sequence of bullet points that explain how you arrived at the answer. This can include aspects of the previous conversation history.
+- You MUST obey the function signature of each tool. Do NOT pass in no arguments if the function expects arguments.
+- **Strictly adhere to the output format. A single \`Thought:\` block must precede every \`Action:\` or \`Final Answer:\`. Do not output multiple \`Thought:\` blocks in one response turn.**
+- You MUST include as much detail as possible when prompting.
+- NEVER include multiple Thought: in response.
 
-you don't need to complete all iterations. If the job is done, provide Final Answer but not with patch_state tool.
-you MUST include as much detail as possibe when prompting.
-You MUST use "patch_state" tool before the last iteration or when you want to stop.
-NEVER include multiple Thought: in response. There can only be one Though, Answer, Action, Action Input in response.
+REMEMBER: Only one \`Thought:\` per response. Stick to the plan, execute precisely.
         `;
         const maxIterations = 12;
         let iterations = 0;
@@ -940,17 +947,17 @@ NEVER include multiple Thought: in response. There can only be one Though, Answe
                         break;
                     
                     
-                    case "reference-to-video":
+                    case "reference_to_video":
                         safeEnqueue(encoder.encodeChunk({ 
                             type: 'text-delta', 
                             text_delta: `Reference to video with prompt: "${parsedActionInput.prompt}"\n` 
                         }));
                         
-                        const referenceToVideoToolCallId = `reference-to-video_call_${iterations}`;
+                        const referenceToVideoToolCallId = `reference_to_video_call_${iterations}`;
                         safeEnqueue(encoder.encodeChunk({ 
                             type: 'tool-call-begin',
                             tool_call_id: referenceToVideoToolCallId,
-                            tool_name: 'reference-to-video'
+                            tool_name: 'reference_to_video'
                         }));
                         
                         const referenceToVideoResult = await self.referenceToVideo(parsedActionInput);

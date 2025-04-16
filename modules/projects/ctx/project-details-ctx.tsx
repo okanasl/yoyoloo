@@ -55,7 +55,7 @@ export function ProjectDetailsProvider({ children }: { children: ReactNode }) {
     const updateMutation = useMutation({
         mutationFn: updateProject,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['projects', projectId] });
+            queryClient.invalidateQueries({ queryKey: ['project', projectId] });
         },
     });
 
