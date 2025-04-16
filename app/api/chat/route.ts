@@ -4,6 +4,8 @@ import { createClient } from '@/utils/supabase/server';
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   try {
     const { messages, projectId, falKey, anthropicKey } = await request.json();
