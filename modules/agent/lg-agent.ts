@@ -8,7 +8,6 @@ import { prisma } from "@/lib/prisma";
 import { applyPatch, Operation } from 'fast-json-patch'
 import { Item } from "../vengin/item/item";
 import { StreamEncoder } from "./stream";
-import { writeFileSync } from "fs";
 import { v4 as uuidv4 } from 'uuid';
 import { InputJsonObject } from "@/app/generated/prisma/runtime/library";
 
@@ -667,8 +666,6 @@ NEVER include multiple Thought: in response. There can only be one Though, Answe
             
             const responseText = response.content.toString();
       
-            writeFileSync(`response_${Date.now()}.txt`, responseText);
-      
             let thought, action, actionInput, finalAnswer;
             
             try {
@@ -1063,7 +1060,6 @@ NEVER include multiple Thought: in response. There can only be one Though, Answe
 
 function extractToolUse(responseText: string): [thought: string | null, action: string | null, actionInput: string | null] {
   // Log response for debugging
-  // writeFileSync(`extract_input_${Date.now()}.txt`, responseText);
 
   let thought: string | null = null;
   let action: string | null = null;

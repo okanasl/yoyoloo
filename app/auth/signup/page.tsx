@@ -19,7 +19,7 @@ export default function SignupPage() {
         >
           <div className={'text-center text-muted-foreground text-sm mt-4 font-medium'}>
             Already have an account?{' '}
-            <a href={'/login'} className={'text-primary'}>
+            <a href={'/auth/login'} className={'text-primary'}>
               Log In
             </a>
           </div>

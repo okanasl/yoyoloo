@@ -15,24 +15,28 @@ import { Plus } from "lucide-react"; // Import Plus icon from lucide-react
 import { generateProjectName } from "../utils";
 import { useProjectDetails } from "../ctx/project-details-ctx";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { createClient } from "@/utils/supabase/client";
 
 
 function ProjectsSelector() {
   const { projects, isLoading, error, createProject } = useProjects();
   const {project} = useProjectDetails();
+  const supabase = createClient();
   const router = useRouter();
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
   const handleSelect = (projectId: string) => {
-    router.push(`/studio/${projectId}`); // Redirect to /projectId
+    router.push(`/studio/${projectId}`);
   };
 
   const handleCreateProject = async () => {
     try {
+      const {data} = await supabase.auth.getSession()
       const newProject = await createProject({
         name: generateProjectName(),
+        userId: data.session?.user.id!,
         state: {
           items: []
         },
@@ -43,7 +47,7 @@ function ProjectsSelector() {
       console.error('Failed to create project:', error);
     }
   };
-  console.log({projects})
+
   return (
     <div className="flex items-center gap-2">
       <DropdownMenu>

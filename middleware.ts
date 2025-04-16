@@ -8,8 +8,8 @@ export async function middleware(request: NextRequest) {
     const supabase = createClient(request);
     const {data} = await supabase.auth.getSession();
     console.log({data})
-    if (data.session?.user) {
-        redirect('/auth/login')
+    if (!data.session?.user) {
+      NextResponse.redirect('/auth/login')
     }
     return res;
 }

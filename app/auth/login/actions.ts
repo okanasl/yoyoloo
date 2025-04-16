@@ -19,5 +19,5 @@ export async function login(data: FormData) {
   }
 
   revalidatePath('/', 'layout');
-  redirect('/studio');
+  redirect('/');
 }
