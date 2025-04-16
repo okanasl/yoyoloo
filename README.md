@@ -12,7 +12,7 @@ An AI powered browser based video editing & rendering tool.
 
 ## Notes
 
-- Currently on Vercel PRO plan, 5 minutes is the max duration for agent to work. Long video requests are will probably fail.
+- Currently on Vercel PRO plan, 5 minutes is the duration for edge function timeout. Long video requests will probably fail.
 - Please make sure to have at least ~3$ in fal ai credits and ~1$ Anthropic credits. The agent will generate 8 seconds scene(s) by default unless you prompt otherwise.
 - Media generation may take long on fal.ai side, please wait if that is the case.
 - Currently messages are not stored. So, when you refresh the page, you won't see them again. Video asset URL's are stored.
